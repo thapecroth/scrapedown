@@ -11,7 +11,9 @@ export const scrape = async ({
 }) => {
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
+      // "User-Agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
     },
   });
   const html = await response.text();
