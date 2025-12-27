@@ -1,7 +1,7 @@
 import { Readability } from "@mozilla/readability";
 import { parseHTML } from "linkedom";
 import TurndownService from "./turndown";
-import { fetchUrl, HEURISTIC_ORDER, AGENT_PROFILES, looksLikeBotDetection } from "./agents";
+import { fetchUrl, HEURISTIC_ORDER, AGENT_PROFILES, looksLikeBotDetection, looksLikeErrorPage } from "./agents";
 import type { AgentName } from "./agents";
 
 export interface ScrapeResult {
@@ -68,9 +68,14 @@ async function scrapeWithHeuristic(
         continue;
       }
 
-      // Check for bot detection
+      // Check for bot detection or error pages
       if (looksLikeBotDetection(html)) {
         console.log(`[heuristic] Agent ${agentName} hit bot detection`);
+        continue;
+      }
+
+      if (looksLikeErrorPage(html, response.status)) {
+        console.log(`[heuristic] Agent ${agentName} got error page`);
         continue;
       }
 

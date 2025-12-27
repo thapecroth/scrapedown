@@ -1,31 +1,80 @@
 // Agent profiles with their HTTP headers
+// Based on 2025 browser fingerprinting research
 export interface AgentProfile {
   name: string;
   headers: Record<string, string>;
 }
 
+// Chrome 120+ on Windows - full realistic header set
+// Headers must be coherent and match what real Chrome sends
 export const AGENT_PROFILES: Record<string, AgentProfile> = {
   chrome: {
     name: "chrome",
     headers: {
       "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Cache-Control": "max-age=0",
+      "Sec-CH-UA": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+      "Sec-CH-UA-Mobile": "?0",
+      "Sec-CH-UA-Platform": '"Windows"',
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-User": "?1",
+      "Upgrade-Insecure-Requests": "1",
+      Priority: "u=0, i",
+    },
+  },
+  // Chrome on macOS
+  chrome_mac: {
+    name: "chrome_mac",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Cache-Control": "max-age=0",
+      "Sec-CH-UA": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+      "Sec-CH-UA-Mobile": "?0",
+      "Sec-CH-UA-Platform": '"macOS"',
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-User": "?1",
+      "Upgrade-Insecure-Requests": "1",
+      Priority: "u=0, i",
+    },
+  },
+  // Googlebot - often whitelisted for SEO
+  googlebot: {
+    name: "googlebot",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.5",
+      "Accept-Encoding": "gzip, deflate",
+    },
+  },
+  // Googlebot rendering engine (Chrome-based)
+  googlebot_chrome: {
+    name: "googlebot_chrome",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
       Accept:
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
       "Accept-Language": "en-US,en;q=0.9",
       "Accept-Encoding": "gzip, deflate, br",
-      "Cache-Control": "no-cache",
-      Pragma: "no-cache",
     },
   },
-  googlebot: {
-    name: "googlebot",
-    headers: {
-      "User-Agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
-      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "Accept-Encoding": "gzip, deflate",
-    },
-  },
+  // Claude Code's axios signature
   axios: {
     name: "axios",
     headers: {
@@ -34,17 +83,79 @@ export const AGENT_PROFILES: Record<string, AgentProfile> = {
       "Accept-Encoding": "gzip, compress, deflate, br",
     },
   },
+  // Firefox on Windows - coherent header set
   firefox: {
     name: "firefox",
     headers: {
       "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
       Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
       "Accept-Language": "en-US,en;q=0.5",
-      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Upgrade-Insecure-Requests": "1",
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-User": "?1",
+      Priority: "u=0, i",
+      // Note: Firefox does NOT send Sec-CH-UA headers
     },
   },
+  // Safari on macOS
+  safari: {
+    name: "safari",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept-Encoding": "gzip, deflate, br",
+      // Note: Safari does NOT send Sec-CH-UA or Sec-Fetch headers
+    },
+  },
+  // Edge on Windows
+  edge: {
+    name: "edge",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Sec-CH-UA": '"Microsoft Edge";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+      "Sec-CH-UA-Mobile": "?0",
+      "Sec-CH-UA-Platform": '"Windows"',
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-User": "?1",
+      "Upgrade-Insecure-Requests": "1",
+    },
+  },
+  // Mobile Chrome on Android
+  chrome_mobile: {
+    name: "chrome_mobile",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Sec-CH-UA": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+      "Sec-CH-UA-Mobile": "?1",
+      "Sec-CH-UA-Platform": '"Android"',
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-User": "?1",
+      "Upgrade-Insecure-Requests": "1",
+    },
+  },
+  // Minimal curl - last resort
   curl: {
     name: "curl",
     headers: {
@@ -55,7 +166,15 @@ export const AGENT_PROFILES: Record<string, AgentProfile> = {
 };
 
 // Order for heuristic mode - most likely to succeed first
-export const HEURISTIC_ORDER: string[] = ["chrome", "googlebot", "axios"];
+// Chrome is most common, then try bots (often whitelisted), then alternatives
+export const HEURISTIC_ORDER: string[] = [
+  "chrome",
+  "googlebot",
+  "firefox",
+  "safari",
+  "chrome_mobile",
+  "axios",
+];
 
 // All valid agent names
 export const VALID_AGENTS = [...Object.keys(AGENT_PROFILES), "heuristic"] as const;
@@ -77,6 +196,29 @@ const BOT_DETECTION_PATTERNS = [
   /too many requests/i,
   /forbidden/i,
   /not allowed/i,
+  /robot or human/i,
+  /are you a robot/i,
+  /verify you are human/i,
+  /challenge-platform/i,
+  /just a moment/i,
+  /checking your browser/i,
+  /ddos protection/i,
+  /attention required/i,
+  /cf-browser-verification/i,
+  /hcaptcha/i,
+  /recaptcha/i,
+  /grecaptcha/i,
+  /turnstile/i,
+];
+
+// Patterns indicating Cloudflare specifically
+const CLOUDFLARE_PATTERNS = [
+  /ray id/i,
+  /cloudflare/i,
+  /cf-ray/i,
+  /__cf_bm/i,
+  /challenge-platform/i,
+  /cdn-cgi/i,
 ];
 
 export interface FetchResult {
@@ -89,23 +231,67 @@ export interface FetchResult {
 
 // Check if response looks like a bot detection page
 export function looksLikeBotDetection(html: string): boolean {
-  // Very short responses are suspicious
-  if (html.length < 500) {
-    const lower = html.toLowerCase();
+  const lower = html.toLowerCase();
+
+  // Very short responses with detection keywords are suspicious
+  if (html.length < 1000) {
     for (const pattern of BOT_DETECTION_PATTERNS) {
       if (pattern.test(lower)) {
         return true;
       }
     }
   }
-  // Check for common bot detection in any length
+
+  // Check for Cloudflare challenge page (any length)
+  if (html.length < 10000) {
+    for (const pattern of CLOUDFLARE_PATTERNS) {
+      if (pattern.test(lower)) {
+        // Verify it's actually a challenge page, not just a page mentioning Cloudflare
+        if (
+          lower.includes("checking your browser") ||
+          lower.includes("just a moment") ||
+          lower.includes("challenge-platform") ||
+          lower.includes("enable javascript and cookies")
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+
+  // Check for challenge pages with minimal content
   if (html.length < 5000) {
-    const lower = html.toLowerCase();
-    // Check for Cloudflare challenge page
-    if (lower.includes("checking your browser") || lower.includes("ray id")) {
+    // Page with almost no real content but has JS challenge
+    const hasMinimalBody =
+      html.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "")
+        .length < 500;
+    if (hasMinimalBody && (lower.includes("challenge") || lower.includes("verify"))) {
       return true;
     }
   }
+
+  return false;
+}
+
+// Check if response looks like an error page
+export function looksLikeErrorPage(html: string, status: number): boolean {
+  if (status >= 400) return true;
+
+  const lower = html.toLowerCase();
+
+  // Common error page patterns
+  if (html.length < 2000) {
+    if (
+      lower.includes("404 not found") ||
+      lower.includes("page not found") ||
+      lower.includes("500 internal server error") ||
+      lower.includes("503 service unavailable") ||
+      lower.includes("502 bad gateway")
+    ) {
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -135,7 +321,12 @@ export async function fetchWithHeuristic(url: string): Promise<FetchResult> {
       lastResult = result;
 
       // Check if this looks like a successful response
-      if (result.ok && result.html.length > 0 && !looksLikeBotDetection(result.html)) {
+      if (
+        result.ok &&
+        result.html.length > 0 &&
+        !looksLikeBotDetection(result.html) &&
+        !looksLikeErrorPage(result.html, result.status)
+      ) {
         console.log(`[heuristic] Success with agent: ${agentName}`);
         return {
           ok: true,
