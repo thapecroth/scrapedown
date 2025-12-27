@@ -52,6 +52,9 @@ async function scrapeWithHeuristic(
 ): Promise<ScrapeResult | null> {
   let attempts = 0;
 
+  // Track best fallback result (valid fetch but small/no article)
+  let fallbackResult: { article: ReturnType<typeof extract>; agent: string; attempts: number } | null = null;
+
   for (const agentName of HEURISTIC_ORDER) {
     attempts++;
     const profile = AGENT_PROFILES[agentName];
@@ -81,19 +84,32 @@ async function scrapeWithHeuristic(
 
       // Try to extract article
       const article = extract(html);
-      if (article == null || !article.content || article.content.length < 100) {
-        console.log(
-          `[heuristic] Agent ${agentName} got no/small article: ${article?.content?.length ?? 0} chars`
-        );
-        continue;
+
+      // Check if we got a good article (>= 100 chars)
+      if (article != null && article.content && article.content.length >= 100) {
+        console.log(`[heuristic] Success with agent: ${agentName}`);
+        return formatArticle(article, markdown, agentName, attempts);
       }
 
-      // Success!
-      console.log(`[heuristic] Success with agent: ${agentName}`);
-      return formatArticle(article, markdown, agentName, attempts);
+      // Got valid HTTP but small/no article - save as fallback
+      // Prefer larger content if we already have a fallback
+      if (article != null && article.content) {
+        const currentLen = article.content.length;
+        const fallbackLen = fallbackResult?.article?.content?.length ?? 0;
+        if (currentLen > fallbackLen) {
+          console.log(`[heuristic] Agent ${agentName} got small article (${currentLen} chars), saving as fallback`);
+          fallbackResult = { article, agent: agentName, attempts };
+        }
+      }
     } catch (error) {
       console.log(`[heuristic] Agent ${agentName} threw error:`, error);
     }
+  }
+
+  // If we have a fallback result (valid fetch but small content), use it
+  if (fallbackResult) {
+    console.log(`[heuristic] Using fallback result from agent: ${fallbackResult.agent}`);
+    return formatArticle(fallbackResult.article, markdown, fallbackResult.agent, fallbackResult.attempts);
   }
 
   console.log(`[heuristic] All agents failed after ${attempts} attempts`);
